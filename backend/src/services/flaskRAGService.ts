@@ -99,7 +99,7 @@ export class FlaskRAGService {
 
   private getFallbackResponse(userMessage: string, language: string): RAGChatResponse {
     const fallbackMessages = {
-      en: "I'm Saarthi, your JECRC chatbot. I'm currently experiencing some technical difficulties with my advanced features, but I'm here to help with basic queries about JECRC Foundation.",
+      en: "I'm Dhruv, your JECRC chatbot. I'm currently experiencing some technical difficulties with my advanced features, but I'm here to help with basic queries about JECRC Foundation.",
       hi: "मैं सारथी हूं, आपका JECRC चैटबॉट। वर्तमान में मेरी उन्नत सुविधाओं में कुछ तकनीकी कठिनाइयां हैं, लेकिन मैं JECRC Foundation के बारे में बुनियादी प्रश्नों में मदद के लिए यहां हूं।",
       raj: "म्हूं सारथी हूं, थारो JECRC चैटबॉट। अभी म्हारी कुछ तकनीकी समस्या है, पण JECRC Foundation के बारे में सामान्य सवालों में म्हूं मदद कर सकूं हूं।"
     };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import ChatApp from './ChatApp';
 import { 
   Bell, 
   Settings, 
@@ -55,7 +56,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     const commonItems = [
       { id: 'overview', label: 'Overview', icon: Home },
       { id: 'calendar', label: 'Calendar', icon: Calendar },
-      { id: 'chat', label: 'Saarthi', icon: MessageCircle },
+      { id: 'chat', label: 'Dhruv', icon: MessageCircle },
     ];
 
     const roleSpecificItems = {
@@ -162,6 +163,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     activeSection === item.id
                       ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 text-white shadow-xl shadow-indigo-500/30 ring-1 ring-white/20 transform scale-105'
                       : 'text-gray-700 hover:bg-white/80 hover:text-indigo-700 hover:shadow-lg hover:shadow-indigo-500/10 hover:scale-102'
+                  } ${
+                    item.id === 'chat' ? 'hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-500 hover:text-white hover:shadow-xl hover:shadow-blue-500/30' : ''
                   }`}
                   whileHover={{ scale: 1.02, x: 4 }}
                   whileTap={{ scale: 0.98 }}
@@ -211,7 +214,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                   )}
                   <div className="min-w-0">
                     <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent capitalize truncate">
-                      {activeSection === 'chat' ? 'Saarthi - JECRC Chatbot' : activeSection}
+                      {activeSection === 'chat' ? 'Dhruv - JECRC Chatbot' : activeSection}
                     </h1>
                   </div>
                 </div>
@@ -302,6 +305,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           </main>
         </div>
       </div>
+      
+      {/* Floating Chat Component */}
+      <ChatApp />
     </div>
   );
 };

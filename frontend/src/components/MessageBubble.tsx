@@ -19,13 +19,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
     });
   };
 
-  const getConfidenceColor = (confidence?: number) => {
-    if (!confidence) return '';
-    if (confidence >= 80) return 'text-green-600';
-    if (confidence >= 60) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
   return (
     <motion.div 
       className={`flex items-start space-x-3 ${isBot ? 'justify-start' : 'justify-end'}`}
@@ -112,32 +105,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           >
             {message.content}
           </motion.p>
-          
-          {isBot && message.confidence !== undefined && (
-            <motion.div 
-              className="mt-3 pt-3 border-t border-gray-100/50"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              transition={{ delay: 0.4, duration: 0.3 }}
-            >
-              <div className="flex items-center justify-between text-xs">
-                <motion.span 
-                  className={`font-semibold px-2 py-1 rounded-full ${getConfidenceColor(message.confidence)} bg-white/50`}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  Confidence: {Math.round(message.confidence)}%
-                </motion.span>
-                {message.intent && (
-                  <motion.span 
-                    className="text-gray-500 bg-gray-100/50 px-2 py-1 rounded-full"
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    Intent: {message.intent}
-                  </motion.span>
-                )}
-              </div>
-            </motion.div>
-          )}
         </motion.div>
 
         <motion.div 

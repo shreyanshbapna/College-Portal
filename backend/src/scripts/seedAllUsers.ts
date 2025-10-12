@@ -31,7 +31,7 @@ const seedUsers = async () => {
         profile: {
           firstName: 'Rajesh',
           lastName: 'Kumar',
-          phone: '+91-9876543210',
+          phone: '9876543210',
           address: 'Jaipur, Rajasthan',
           dateOfBirth: new Date('2002-03-15')
         },
@@ -61,7 +61,7 @@ const seedUsers = async () => {
         profile: {
           firstName: 'Priya',
           lastName: 'Sharma',
-          phone: '+91-9876543211',
+          phone: '9876543211',
           address: 'Jodhpur, Rajasthan',
           dateOfBirth: new Date('2003-07-22')
         },
@@ -91,7 +91,7 @@ const seedUsers = async () => {
         profile: {
           firstName: 'Amit',
           lastName: 'Gupta',
-          phone: '+91-9876543212',
+          phone: '9876543212',
           address: 'Udaipur, Rajasthan',
           dateOfBirth: new Date('2001-11-08')
         },
@@ -125,7 +125,7 @@ const seedUsers = async () => {
         profile: {
           firstName: 'Dr. Sunita',
           lastName: 'Agarwal',
-          phone: '+91-9876543213',
+          phone: '9876543213',
           address: 'Faculty Housing, JECRC University',
           dateOfBirth: new Date('1985-05-12')
         },
@@ -151,7 +151,7 @@ const seedUsers = async () => {
         profile: {
           firstName: 'Prof. Vikram',
           lastName: 'Singh',
-          phone: '+91-9876543214',
+          phone: '9876543214',
           address: 'Malviya Nagar, Jaipur',
           dateOfBirth: new Date('1978-09-25')
         },
@@ -177,7 +177,7 @@ const seedUsers = async () => {
         profile: {
           firstName: 'Dr. Meera',
           lastName: 'Joshi',
-          phone: '+91-9876543215',
+          phone: '9876543215',
           address: 'C-Scheme, Jaipur',
           dateOfBirth: new Date('1982-01-18')
         },
@@ -207,7 +207,7 @@ const seedUsers = async () => {
         profile: {
           firstName: 'Dr. Arjun',
           lastName: 'Malhotra',
-          phone: '+91-9876543216',
+          phone: '9876543216',
           address: 'Principal Residence, JECRC University',
           dateOfBirth: new Date('1970-12-03')
         },
@@ -231,7 +231,7 @@ const seedUsers = async () => {
         profile: {
           firstName: 'Dr. Kavita',
           lastName: 'Verma',
-          phone: '+91-9876543217',
+          phone: '9876543217',
           address: 'Administrative Block, JECRC University',
           dateOfBirth: new Date('1975-04-20')
         },

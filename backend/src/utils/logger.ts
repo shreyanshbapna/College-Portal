@@ -16,7 +16,7 @@ export const logger = winston.createLogger({
     json()
   ),
   defaultMeta: { 
-    service: 'saarthi-jecrc-chatbot',
+    service: 'dhruv-jecrc-chatbot',
     environment: process.env.NODE_ENV || 'development'
   },
   transports: [

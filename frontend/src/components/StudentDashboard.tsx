@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import DashboardLayout from './DashboardLayout';
-import ChatApp from './ChatApp';
 import ResponsiveContainer from './ResponsiveContainer';
 import ResponsiveGrid from './ResponsiveGrid';
 import Card from './Card';
 import CalendarComponent, { CalendarEvent } from './Calendar';
 import { studentCalendarEvents, createSampleEvent } from '../utils/calendarData';
-import { BookOpen, Clock, CheckCircle, Users, Award, CreditCard } from 'lucide-react';
+import { BookOpen, Clock, CheckCircle, Users, Award, CreditCard, MessageCircle, Sparkles } from 'lucide-react';
 
 const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -776,7 +775,108 @@ const StudentDashboard: React.FC = () => {
       case 'calendar':
         return renderCalendar();
       case 'chat':
-        return <ChatApp />;
+        return (
+          <div className="h-full flex flex-col">
+            {/* Full-screen Chat Interface */}
+            <div className="h-full bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-xl overflow-hidden">
+              {/* Chat Header */}
+              <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6">
+                <div className="flex items-center space-x-4">
+                  <motion.div
+                    className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center"
+                    animate={{
+                      rotate: [0, 10, -10, 0],
+                      scale: [1, 1.05, 1]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <MessageCircle className="h-6 w-6 text-white" />
+                  </motion.div>
+                  <div>
+                    <h1 className="text-2xl font-bold">Dhruv - JECRC Campus Assistant</h1>
+                    <p className="text-blue-100">Your multilingual campus chatbot</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Chat Content */}
+              <div className="flex-1 p-6 flex flex-col">
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 text-center mb-6">
+                  <motion.div
+                    className="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                    animate={{
+                      rotate: [0, 360]
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  >
+                    <Sparkles className="h-10 w-10 text-white" />
+                  </motion.div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-3">Full-Screen Chat Coming Soon!</h2>
+                  <p className="text-gray-600 mb-6">For now, use the floating chat button at the bottom-right corner for the best chat experience.</p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <motion.button
+                      onClick={() => {
+                        const chatEvent = new CustomEvent('openFloatingChat');
+                        window.dispatchEvent(chatEvent);
+                      }}
+                      className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-xl transition-all duration-300 font-semibold flex items-center space-x-2"
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <MessageCircle className="h-5 w-5" />
+                      <span>Open Floating Chat</span>
+                    </motion.button>
+                    
+                    <motion.button
+                      onClick={() => setActiveSection('overview')}
+                      className="px-8 py-4 bg-white/80 text-gray-700 rounded-xl hover:bg-white hover:shadow-lg transition-all duration-300 font-semibold border border-gray-200"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Back to Overview
+                    </motion.button>
+                  </div>
+                </div>
+                
+                {/* Features Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-white/80 p-4 rounded-xl border border-blue-200/50">
+                    <div className="text-blue-600 mb-2">
+                      <MessageCircle className="h-6 w-6" />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Real-time Chat</h3>
+                    <p className="text-sm text-gray-600">Instant responses to your queries</p>
+                  </div>
+                  
+                  <div className="bg-white/80 p-4 rounded-xl border border-purple-200/50">
+                    <div className="text-purple-600 mb-2">
+                      <span className="text-lg font-bold">🌍</span>
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Multilingual</h3>
+                    <p className="text-sm text-gray-600">English, Hindi & Rajasthani support</p>
+                  </div>
+                  
+                  <div className="bg-white/80 p-4 rounded-xl border border-indigo-200/50">
+                    <div className="text-indigo-600 mb-2">
+                      <span className="text-lg font-bold">🎓</span>
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Campus Info</h3>
+                    <p className="text-sm text-gray-600">Academic & facility information</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
       default:
         return (
           <ResponsiveContainer>

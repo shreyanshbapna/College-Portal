@@ -112,15 +112,33 @@ async function seedFAQs() {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/sih-multilingual-chatbot');
     logger.info('Connected to MongoDB for seeding');
 
-    // Clear existing FAQs
+    // Drop the entire collection to remove all indexes
+    try {
+      if (mongoose.connection.db) {
+        await mongoose.connection.db.dropCollection('faqs');
+      }
+    } catch (error) {
+      logger.info('FAQ collection does not exist, creating new one');
+    }
+    
+    // Clear existing FAQs (this will recreate the collection)
     await FAQ.deleteMany({});
-    logger.info('Cleared existing FAQs');
+    logger.info('Cleared existing FAQs and indexes');
 
-    // Insert sample FAQs
-    const insertedFAQs = await FAQ.insertMany(sampleFAQs);
-    logger.info(`Inserted ${insertedFAQs.length} sample FAQs`);
+    // Insert sample FAQs one by one to avoid bulk write issues
+    let insertedCount = 0;
+    for (const faqData of sampleFAQs) {
+      try {
+        const faq = new FAQ(faqData);
+        await faq.save();
+        insertedCount++;
+        logger.info(`Inserted FAQ ${insertedCount}: ${faqData.question.substring(0, 50)}...`);
+      } catch (error) {
+        logger.error(`Failed to insert FAQ: ${faqData.question.substring(0, 50)}...`, error);
+      }
+    }
 
-    logger.info('FAQ seeding completed successfully');
+    logger.info(`FAQ seeding completed successfully. Inserted ${insertedCount}/${sampleFAQs.length} FAQs`);
     process.exit(0);
   } catch (error) {
     logger.error('Error seeding FAQs:', error);

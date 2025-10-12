@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import ChatHeader from './ChatHeader';
+import { MessageCircle, X } from 'lucide-react';
 import ChatMessages from './ChatMessages';
 import ChatInput from './ChatInput';
 import LanguageSelector from './LanguageSelector';
@@ -18,23 +18,15 @@ const ChatApp: React.FC<ChatAppProps> = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(true); // Auto-open chat to show DHRUV name
 
   const getWelcomeMessage = (language: Language): string => {
     const welcomeMessages = {
-      en: "Hello! I'm Saarthi, your JECRC Chatbot for campus assistance. How can I help you today?",
-      hi: "नमस्ते! मैं JECRC Foundation का आपका बहुभाषी कैंपस सहायक हूं। आज मैं आपकी कैसे मदद कर सकता हूं?",
-      raj: "नमस्कार! म्हैं JECRC Foundation को थारो बहुभाषी कैंपस सहायक हूं। आज म्हैं थारी कैसे मदद कर सकूं?"
+      en: "Hello! I'm Dhruv, your JECRC campus assistant. How can I help you today?",
+      hi: "नमस्ते! मैं ध्रुव हूं, आपका JECRC कैंपस सहायक। मैं आज आपकी कैसे सहायता कर सकता हूं?",
+      raj: "नमस्कार! म्हैं ध्रुव हूं, थारो JECRC कैंपस सहायक। म्हैं आज थानै कांई मदद कर सकूं?"
     };
     return welcomeMessages[language];
-  };
-
-  const getLanguageName = (language: Language): string => {
-    const languageNames = {
-      en: 'English',
-      hi: 'Hindi (हिंदी)',
-      raj: 'Rajasthani (राजस्थानी)'
-    };
-    return languageNames[language];
   };
 
   const initializeChat = useCallback(async () => {
@@ -42,97 +34,64 @@ const ChatApp: React.FC<ChatAppProps> = () => {
       const session = await chatApi.createSession(currentLanguage);
       setSessionId(session.sessionId);
 
-      const newSocket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:5002', {
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
-        timeout: 20000,
-        transports: ['websocket', 'polling'],
-        upgrade: true,
-        rememberUpgrade: true,
-        forceNew: false
-      });
-      setSocket(newSocket);
-
+      const newSocket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:5002');
+      
       newSocket.on('connect', () => {
-        console.log('✅ Connected to server');
         setIsConnected(true);
         newSocket.emit('join_chat', { sessionId: session.sessionId });
-        
-        const welcomeMessage: Message = {
-          id: 'welcome',
-          content: getWelcomeMessage(currentLanguage),
-          sender: 'bot',
-          timestamp: new Date(),
-          language: currentLanguage
-        };
-        setMessages([welcomeMessage]);
-        // Removed connection success toast to reduce UI noise
       });
 
-      newSocket.on('disconnect', (reason) => {
-        console.log('❌ Disconnected from server:', reason);
+      newSocket.on('disconnect', () => {
         setIsConnected(false);
-        if (reason === 'io server disconnect') {
-          // Server initiated disconnect, reconnect manually
-          newSocket.connect();
-        }
       });
 
-      newSocket.on('connect_error', (error) => {
-        console.error('Connection error:', error);
-        setIsConnected(false);
-        // Removed repetitive connection error toasts to reduce UI noise
-      });
-
-      newSocket.on('reconnect', (attemptNumber) => {
-        console.log('🔄 Reconnected after', attemptNumber, 'attempts');
-        setIsConnected(true);
-        // Removed reconnection toast to reduce UI noise - console log sufficient
-      });
-
-      newSocket.on('reconnect_error', (error) => {
-        console.error('Reconnection failed:', error);
-        toast.error('Reconnection failed. Please refresh the page.');
-      });
-
-      newSocket.on('receive_message', (response: any) => {
+      newSocket.on('receive_message', (data: any) => {
         const botMessage: Message = {
           id: `bot-${Date.now()}`,
-          content: response.message,
+          content: data.message,
           sender: 'bot',
           timestamp: new Date(),
-          language: response.language,
-          confidence: response.confidence,
-          intent: response.intent
+          language: data.language,
+          intent: data.intent,
+          confidence: data.confidence
         };
         setMessages(prev => [...prev, botMessage]);
         setIsLoading(false);
       });
 
-      newSocket.on('error', (error: any) => {
-        toast.error('Connection error. Please try again.');
-        setIsLoading(false);
-      });
+      setSocket(newSocket);
+
+      const welcomeMessage: Message = {
+        id: 'welcome',
+        content: getWelcomeMessage(currentLanguage),
+        sender: 'bot',
+        timestamp: new Date(),
+        language: currentLanguage
+      };
+      setMessages([welcomeMessage]);
 
     } catch (error) {
-      toast.error('Failed to initialize chat. Please refresh the page.');
-      console.error('Chat initialization error:', error);
+      console.error('Failed to initialize chat:', error);
+      toast.error('Failed to start chat session');
     }
-  }, []); // Remove currentLanguage dependency to prevent recreation
+  }, [currentLanguage]);
 
   useEffect(() => {
+    const handleOpenFloatingChat = () => {
+      setIsChatOpen(true);
+    };
+
+    window.addEventListener('openFloatingChat', handleOpenFloatingChat);
     initializeChat();
     
     return () => {
+      window.removeEventListener('openFloatingChat', handleOpenFloatingChat);
       if (socket) {
-        console.log('🧹 Cleaning up socket connection');
         socket.disconnect();
         setSocket(null);
       }
     };
-  }, [initializeChat]); // Only run when initializeChat changes (which it shouldn't now)
+  }, [initializeChat]);
 
   const sendMessage = async (content: string) => {
     if (!content.trim() || !sessionId) return;
@@ -151,56 +110,39 @@ const ChatApp: React.FC<ChatAppProps> = () => {
     try {
       if (socket && isConnected) {
         socket.emit('send_message', {
+          sessionId,
           message: content.trim(),
-          language: currentLanguage,
-          sessionId
+          language: currentLanguage
         });
       } else {
         const response = await chatApi.sendMessage(sessionId, content.trim(), currentLanguage);
-        
         const botMessage: Message = {
           id: `bot-${Date.now()}`,
           content: response.botResponse.content,
           sender: 'bot',
           timestamp: new Date(),
           language: response.botResponse.language,
-          confidence: response.botResponse.confidence,
-          intent: response.botResponse.intent
+          intent: response.botResponse.intent,
+          confidence: response.botResponse.confidence
         };
-        
         setMessages(prev => [...prev, botMessage]);
         setIsLoading(false);
       }
     } catch (error) {
-      toast.error('Failed to send message. Please try again.');
+      console.error('Failed to send message:', error);
       setIsLoading(false);
+      toast.error('Failed to send message. Please try again.');
     }
   };
 
   const handleLanguageChange = async (newLanguage: Language) => {
-    setCurrentLanguage(newLanguage);
-    
-    const languageChangeMessage: Message = {
-      id: `lang-change-${Date.now()}`,
-      content: `Language switched to ${getLanguageName(newLanguage)}`,
-      sender: 'bot',
-      timestamp: new Date(),
-      language: newLanguage
-    };
-
-    setMessages(prev => [...prev, languageChangeMessage]);
-
-    // Create new session for the new language but don't reinitialize socket
     try {
-      const session = await chatApi.createSession(newLanguage);
-      setSessionId(session.sessionId);
-      
-      // If socket exists, just update the session
+      setCurrentLanguage(newLanguage);
+
       if (socket && isConnected) {
-        socket.emit('join_chat', { sessionId: session.sessionId });
+        socket.emit('join_chat', { sessionId: sessionId });
       }
       
-      // Add welcome message in new language
       const welcomeMessage: Message = {
         id: 'welcome-new-lang',
         content: getWelcomeMessage(newLanguage),
@@ -215,142 +157,94 @@ const ChatApp: React.FC<ChatAppProps> = () => {
     }
   };
 
-  const handleClearChat = () => {
-    setMessages([]);
-    const welcomeMessage: Message = {
-      id: 'welcome-new',
-      content: getWelcomeMessage(currentLanguage),
-      sender: 'bot',
-      timestamp: new Date(),
-      language: currentLanguage
-    };
-    setMessages([welcomeMessage]);
-  };
-
   return (
-    <div className="h-full bg-gradient-to-br from-indigo-50 via-white to-cyan-50 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-        />
-        <motion.div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-green-400/20 to-blue-400/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            rotate: [360, 180, 0],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-pink-400/10 to-yellow-400/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-      </div>
-
-      {/* Main Content */}
-      <motion.div
-        className="relative z-10 flex flex-col h-full"
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <motion.div
-          initial={{ y: -50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <ChatHeader 
-            isConnected={isConnected}
-            currentLanguage={currentLanguage}
-            onClearChat={handleClearChat}
-          />
-        </motion.div>
-        
-        <motion.div 
-          className="flex-1 flex flex-col overflow-hidden backdrop-blur-sm"
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <ChatMessages 
-            messages={messages}
-            isLoading={isLoading}
-          />
-          
+    <>
+      {/* Floating Chat Button */}
+      <AnimatePresence>
+        {!isChatOpen && (
           <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
+            className="fixed bottom-6 right-6"
+            style={{ zIndex: 9999 }}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0 }}
           >
-            <ChatInput 
-              onSendMessage={sendMessage}
-              currentLanguage={currentLanguage}
-              disabled={isLoading}
-            />
+            <button
+              onClick={() => setIsChatOpen(true)}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 group relative"
+            >
+              <MessageCircle className="h-6 w-6" />
+              
+              {/* Simple DHRUV label */}
+                          {/* Simple DHRUV label */}
+            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs font-bold whitespace-nowrap">
+              DHRUV Chat
+            </div>
+            </button>
           </motion.div>
-        </motion.div>
-        
-        <AnimatePresence>
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-          >
-            <LanguageSelector 
-              currentLanguage={currentLanguage}
-              onLanguageChange={handleLanguageChange}
-            />
-          </motion.div>
-        </AnimatePresence>
-      </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Floating particles effect */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(6)].map((_, i) => (
+      {/* Chat Window */}
+      <AnimatePresence>
+        {isChatOpen && (
           <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-blue-400/30 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [-20, -40, -20],
-              opacity: [0.3, 0.8, 0.3],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-              ease: "easeInOut"
-            }}
-          />
-        ))}
-      </div>
-    </div>
+            className="fixed bottom-6 right-6 z-50 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden"
+            style={{ width: '380px', height: '520px' }}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ duration: 0.2 }}
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-4">
+              {/* Main title row */}
+              <div className="text-center mb-3">
+                <h1 className="text-white font-black text-4xl">DHRUV</h1>
+                <p className="text-white text-lg font-bold">JECRC Assistant</p>
+              </div>
+              
+              {/* Status and close button row */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <MessageCircle className="h-5 w-5 text-white" />
+                  <div className="flex items-center space-x-1">
+                    <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-300' : 'bg-red-300'}`}></div>
+                    <span className="text-indigo-100 text-xs">{isConnected ? 'Online' : 'Offline'}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsChatOpen(false)}
+                  className="text-white/80 hover:text-white hover:bg-white/10 p-1 rounded transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 bg-gray-50 overflow-hidden" style={{ height: '350px' }}>
+              <div className="h-full overflow-y-auto p-3">
+                <ChatMessages messages={messages} isLoading={isLoading} />
+              </div>
+            </div>
+
+            {/* Input Area */}
+            <div className="bg-white border-t border-gray-200 p-3 space-y-2">
+              <LanguageSelector 
+                currentLanguage={currentLanguage}
+                onLanguageChange={handleLanguageChange}
+              />
+              <ChatInput 
+                onSendMessage={sendMessage}
+                currentLanguage={currentLanguage}
+                disabled={isLoading}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 

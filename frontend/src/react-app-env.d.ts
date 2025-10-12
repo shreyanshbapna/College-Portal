@@ -1,21 +1,5 @@
 /// <reference types="react-scripts" />
 
-// CSS Module declarations
-declare module '*.css' {
-  const content: { [className: string]: string };
-  export default content;
-}
-
-declare module '*.scss' {
-  const content: { [className: string]: string };
-  export default content;
-}
-
-declare module '*.sass' {
-  const content: { [className: string]: string };
-  export default content;
-}
-
 // SVG declarations
 declare module '*.svg' {
   import * as React from 'react';
@@ -41,11 +25,6 @@ declare module '*.jpeg' {
 }
 
 declare module '*.gif' {
-  const src: string;
-  export default src;
-}
-
-declare module '*.bmp' {
   const src: string;
   export default src;
 }

@@ -1,4 +1,4 @@
-# Saarthi - JECRC Chatbot 🤖
+# Sara - JECRC Chatbot 🤖
 
 A complete multilingual chatbot system for JECRC Foundation with AI-powered responses in English, Hindi, and Rajasthani.
 
@@ -115,4 +115,4 @@ npm run lint
 This is a SIH 2025 competition project. Contributions from team members welcome!
 
 ---
-**Saarthi** - Your intelligent JECRC companion 🎓
+**Sara** - Your intelligent JECRC companion 🎓

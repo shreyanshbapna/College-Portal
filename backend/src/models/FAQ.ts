@@ -82,6 +82,8 @@ FAQSchema.index({ language: 1, category: 1 });
 FAQSchema.index({ keywords: 1 });
 FAQSchema.index({ isActive: 1 });
 FAQSchema.index({ accessCount: -1 });
+
+// Simple text search without language-specific configuration
 FAQSchema.index({ 
   question: 'text', 
   answer: 'text', 
@@ -91,7 +93,8 @@ FAQSchema.index({
     question: 10,
     keywords: 5,
     answer: 1
-  }
+  },
+  default_language: 'none'
 });
 
 // Middleware to update lastUpdated field

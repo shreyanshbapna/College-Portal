@@ -71,7 +71,7 @@ app.use(limiter);
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
-    message: 'Saarthi - JECRC Chatbot Backend is running',
+    message: 'Dhruv - JECRC Chatbot Backend is running',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
@@ -92,7 +92,7 @@ io.on('connection', (socket) => {
 
   // Send welcome message with connection confirmation
   socket.emit('welcome', {
-    message: 'Connected to Saarthi - JECRC Chatbot',
+    message: 'Connected to Dhruv - JECRC Chatbot',
     timestamp: new Date().toISOString(),
     socketId: socket.id
   });
@@ -377,7 +377,7 @@ async function startServer() {
   try {
     await connectDatabase();
     server.listen(PORT, () => {
-      logger.info(`🚀 Saarthi - JECRC Chatbot Backend running on port ${PORT}`);
+      logger.info(`🚀 Dhruv - JECRC Chatbot Backend running on port ${PORT}`);
       logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
       logger.info(`📱 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
     });

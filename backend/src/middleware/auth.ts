@@ -9,4 +9,4 @@ export const authenticateToken = authService.authenticate;
 export const authorize = authService.authorize;
 
 // Export the AuthRequest type
-export { AuthRequest } from '../services/authService';
+export { AuthRequest } from '../services/authService';``
